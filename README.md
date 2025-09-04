@@ -349,14 +349,3 @@ docs/                     # Additional documentation
 5. **Configuration Management**: Environment-based config with validation
 6. **Error Handling**: Centralized error middleware with structured responses
 
----
-
-## 🚀 Getting Started as a Reviewer
-
-1. **Quick Demo**: `pnpm docker:up` → Visit `http://localhost:3000/api/docs`
-2. **Test API**: Use Swagger UI or import Postman collections
-3. **Review Code**: Start with `src/modules/gateways/` for core business logic
-4. **Database**: Check `src/database/schema/` for data model design
-5. **Architecture**: Review `src/config/container.ts` for DI setup
-
-The application demonstrates production-ready Node.js API development with proper architecture, documentation, and deployment practices.
