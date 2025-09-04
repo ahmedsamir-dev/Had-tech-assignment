@@ -1,0 +1,249 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiVersion = v1
+@contentType = application/json
+
+### Create Orphaned Device - POST /api/v1/devices
+POST {{baseUrl}}/api/{{apiVersion}}/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 1001,
+  "vendor": "Acme Corp",
+  "status": "offline",
+  "deviceTypeId": 1
+}
+
+### Expected Response (201):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "uid": 1001,
+#     "vendor": "Acme Corp",
+#     "status": "offline",
+#     "deviceTypeId": 1,
+#     "gatewayId": null,
+#     "createdAt": "timestamp",
+#     "updatedAt": "timestamp"
+#   }
+# }
+
+###
+
+### Create Device and Attach to Gateway - POST /api/v1/gateways/:gatewayId/devices
+# Replace GATEWAY-ID with actual gateway ID from previous tests
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 1002,
+  "vendor": "Tech Solutions Inc",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Expected Response (201):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "uid": 1002,
+#     "vendor": "Tech Solutions Inc",
+#     "status": "online",
+#     "deviceTypeId": 1,
+#     "gatewayId": "gateway-uuid-here",
+#     "createdAt": "timestamp",
+#     "updatedAt": "timestamp"
+#   }
+# }
+
+###
+
+### Get All Devices - GET /api/v1/devices
+GET {{baseUrl}}/api/{{apiVersion}}/devices
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": [
+#     {
+#       "id": "uuid-here",
+#       "uid": 1001,
+#       "vendor": "Acme Corp",
+#       "status": "offline",
+#       "deviceTypeId": 1,
+#       "gatewayId": null,
+#       "gateway": null
+#     },
+#     {
+#       "id": "uuid-here",
+#       "uid": 1002,
+#       "vendor": "Tech Solutions Inc",
+#       "status": "online",
+#       "deviceTypeId": 1,
+#       "gatewayId": "gateway-uuid",
+#       "gateway": { "name": "Gateway Name" }
+#     }
+#   ],
+#   "pagination": {
+#     "page": 1,
+#     "limit": 10,
+#     "total": 2,
+#     "totalPages": 1,
+#     "hasNext": false,
+#     "hasPrevious": false
+#   }
+# }
+
+###
+
+### Get All Devices with Pagination - GET /api/v1/devices?page=1&limit=5
+GET {{baseUrl}}/api/{{apiVersion}}/devices?page=1&limit=5
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": [...],
+#   "pagination": {
+#     "page": 1,
+#     "limit": 5,
+#     "total": 2,
+#     "totalPages": 1,
+#     "hasNext": false,
+#     "hasPrevious": false
+#   }
+# }
+
+###
+
+### Get Device by ID - GET /api/v1/devices/:id
+# Replace with actual device ID from previous responses
+GET {{baseUrl}}/api/{{apiVersion}}/devices/REPLACE-WITH-DEVICE-ID
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "uid": 1001,
+#     "vendor": "Acme Corp",
+#     "status": "offline",
+#     "deviceTypeId": 1,
+#     "gatewayId": null,
+#     "gateway": null,
+#     "deviceType": {
+#       "id": 1,
+#       "name": "Sensor",
+#       "description": "Temperature and humidity sensor"
+#     }
+#   }
+# }
+
+###
+
+### Update Device - PUT /api/v1/devices/:id
+# Replace with actual device ID
+PUT {{baseUrl}}/api/{{apiVersion}}/devices/REPLACE-WITH-DEVICE-ID
+Content-Type: {{contentType}}
+
+{
+  "vendor": "Updated Vendor Name",
+  "status": "maintenance"
+}
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "uid": 1001,
+#     "vendor": "Updated Vendor Name",
+#     "status": "maintenance",
+#     "deviceTypeId": 1,
+#     "gatewayId": null,
+#     "updatedAt": "new-timestamp"
+#   }
+# }
+
+###
+
+### Detach Device from Gateway - DELETE /api/v1/gateways/:gatewayId/devices
+# Replace GATEWAY-ID and DEVICE-ID with actual IDs
+DELETE {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID/devices
+Content-Type: {{contentType}}
+
+{
+  "deviceId": "REPLACE-WITH-DEVICE-ID"
+}
+
+### Expected Response (204): Empty body
+### Note: Device becomes orphaned after this operation
+
+###
+
+### Error Test - Duplicate Device UID
+POST {{baseUrl}}/api/{{apiVersion}}/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 1001,
+  "vendor": "Duplicate UID Test",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Expected Response (409):
+# {
+#   "success": false,
+#   "message": "Device with UID already exists"
+# }
+
+###
+
+### Error Test - Attach Device to Non-existent Gateway
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/00000000-0000-0000-0000-000000000000/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 9999,
+  "vendor": "Non-existent Gateway Test",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Expected Response (404):
+# {
+#   "success": false,
+#   "message": "Gateway not found"
+# }
+
+###
+
+### Error Test - Exceed Device Limit (Run this 11 times with different UIDs)
+# First, create a gateway and attach 10 devices, then try this
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 2000,
+  "vendor": "Device Limit Test",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Expected Response (400) after 10 devices:
+# {
+#   "success": false,
+#   "message": "Gateway has reached maximum device limit (10)"
+# }
+
+###
+
+### Delete Device - DELETE /api/v1/devices/:id
+# Replace with actual device ID
+DELETE {{baseUrl}}/api/{{apiVersion}}/devices/REPLACE-WITH-DEVICE-ID
+
+### Expected Response (204): Empty body
+
+###

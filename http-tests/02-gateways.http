@@ -1,0 +1,179 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiVersion = v1
+@contentType = application/json
+
+### Create Gateway - POST /api/v1/gateways
+POST {{baseUrl}}/api/{{apiVersion}}/gateways
+Content-Type: {{contentType}}
+
+{
+  "serialNumber": "GW-001-TEST-{{$randomInt}}",
+  "name": "Test Gateway Primary",
+  "ipv4Address": "192.168.1.100",
+  "status": "active",
+  "location": "Building A, Floor 1"
+}
+
+### Expected Response (201):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "serialNumber": "GW-001-TEST-123",
+#     "name": "Test Gateway Primary",
+#     "ipv4Address": "192.168.1.100",
+#     "status": "active",
+#     "location": "Building A, Floor 1",
+#     "createdAt": "timestamp",
+#     "updatedAt": "timestamp"
+#   }
+# }
+
+###
+
+### Create Second Gateway for Testing
+POST {{baseUrl}}/api/{{apiVersion}}/gateways
+Content-Type: {{contentType}}
+
+{
+  "serialNumber": "GW-002-TEST-{{$randomInt}}",
+  "name": "Test Gateway Secondary",
+  "ipv4Address": "192.168.1.101",
+  "status": "active",
+  "location": "Building B, Floor 2"
+}
+
+###
+
+### Get All Gateways - GET /api/v1/gateways
+GET {{baseUrl}}/api/{{apiVersion}}/gateways
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": [...],
+#   "pagination": {
+#     "page": 1,
+#     "limit": 10,
+#     "total": 2,
+#     "totalPages": 1,
+#     "hasNext": false,
+#     "hasPrevious": false
+#   }
+# }
+
+###
+
+### Get All Gateways with Pagination - GET /api/v1/gateways?page=1&limit=5
+GET {{baseUrl}}/api/{{apiVersion}}/gateways?page=1&limit=5
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": [...],
+#   "pagination": {
+#     "page": 1,
+#     "limit": 5,
+#     "total": 2,
+#     "totalPages": 1,
+#     "hasNext": false,
+#     "hasPrevious": false
+#   }
+# }
+
+###
+
+### Get Gateway by ID - GET /api/v1/gateways/:id
+# Copy a gateway ID from the "Get All Gateways" response and replace below
+GET {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID
+
+### Expected Response (200):
+# {
+#   "success": true,
+#   "data": {
+#     "id": "uuid-here",
+#     "serialNumber": "GW-001-TEST-123",
+#     "name": "Test Gateway Primary",
+#     "ipv4Address": "192.168.1.100",
+#     "status": "active",
+#     "location": "Building A, Floor 1",
+#     "devices": []
+#   }
+# }
+
+###
+
+### Update Gateway - PUT /api/v1/gateways/:id
+# Replace GATEWAY-ID with actual ID from previous requests
+PUT {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Gateway Name",
+  "status": "inactive",
+  "location": "Building A, Floor 1 - Relocated"
+}
+
+### Note: serialNumber and ipv4Address are immutable
+
+###
+
+### Error Test - Duplicate Serial Number
+POST {{baseUrl}}/api/{{apiVersion}}/gateways
+Content-Type: {{contentType}}
+
+{
+  "serialNumber": "GW-001-TEST-123",
+  "name": "Duplicate Gateway",
+  "ipv4Address": "192.168.1.102",
+  "status": "active",
+  "location": "Test Location"
+}
+
+### Expected Response (409):
+# {
+#   "success": false,
+#   "message": "Gateway with serial number already exists"
+# }
+
+###
+
+### Error Test - Invalid IPv4
+POST {{baseUrl}}/api/{{apiVersion}}/gateways
+Content-Type: {{contentType}}
+
+{
+  "serialNumber": "GW-INVALID-IP-{{$randomInt}}",
+  "name": "Invalid IP Gateway",
+  "ipv4Address": "999.999.999.999",
+  "status": "active",
+  "location": "Test Location"
+}
+
+### Expected Response (400):
+# {
+#   "success": false,
+#   "message": "Invalid IPv4 address format"
+# }
+
+###
+
+### Error Test - Get Non-existent Gateway
+GET {{baseUrl}}/api/{{apiVersion}}/gateways/00000000-0000-0000-0000-000000000000
+
+### Expected Response (404):
+# {
+#   "success": false,
+#   "message": "Gateway not found"
+# }
+
+###
+
+### Delete Gateway - DELETE /api/v1/gateways/:id
+# Replace with actual gateway ID
+DELETE {{baseUrl}}/api/{{apiVersion}}/gateways/REPLACE-WITH-GATEWAY-ID
+
+### Expected Response (204): Empty body
+
+###

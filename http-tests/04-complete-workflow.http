@@ -1,0 +1,115 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiVersion = v1
+@contentType = application/json
+
+### Complete Test Workflow - Gateway and Device Lifecycle
+
+### Step 1: Create a Gateway
+# @name createGateway
+POST {{baseUrl}}/api/{{apiVersion}}/gateways
+Content-Type: {{contentType}}
+
+{
+  "serialNumber": "GW-WORKFLOW-{{$randomInt}}",
+  "name": "Workflow Test Gateway",
+  "ipv4Address": "192.168.10.50",
+  "status": "active",
+  "location": "Test Lab - Workflow"
+}
+
+### Step 2: Extract Gateway ID and Create Multiple Devices
+# Use the ID from Step 1 response in the requests below
+
+### Device 1 - Sensor
+# @name createDevice1
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 3001,
+  "vendor": "SensorTech Ltd",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Device 2 - Camera
+# @name createDevice2
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 3002,
+  "vendor": "VisionCorp",
+  "status": "online",
+  "deviceTypeId": 2
+}
+
+### Device 3 - Actuator
+# @name createDevice3
+POST {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}/devices
+Content-Type: {{contentType}}
+
+{
+  "uid": 3003,
+  "vendor": "ControlSystems Inc",
+  "status": "online",
+  "deviceTypeId": 1
+}
+
+### Step 3: Verify Gateway with Devices
+GET {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}
+
+### Step 4: Update Gateway Status
+PUT {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Workflow Gateway",
+  "status": "maintenance",
+  "location": "Test Lab - Under Maintenance"
+}
+
+### Step 5: Update Device Status
+PUT {{baseUrl}}/api/{{apiVersion}}/devices/{{createDevice1.response.body.data.id}}
+Content-Type: {{contentType}}
+
+{
+  "status": "offline",
+  "vendor": "SensorTech Ltd - Updated"
+}
+
+### Step 6: Detach a Device (Make it Orphaned)
+DELETE {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}/devices
+Content-Type: {{contentType}}
+
+{
+  "deviceId": "{{createDevice2.response.body.data.id}}"
+}
+
+### Step 7: Verify Gateway After Device Detachment
+GET {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}
+
+### Step 8: Verify Orphaned Device
+GET {{baseUrl}}/api/{{apiVersion}}/devices/{{createDevice2.response.body.data.id}}
+
+### Step 9: List All Devices (should show attached and orphaned)
+GET {{baseUrl}}/api/{{apiVersion}}/devices
+
+### Step 10: Delete Orphaned Device
+DELETE {{baseUrl}}/api/{{apiVersion}}/devices/{{createDevice2.response.body.data.id}}
+
+### Step 11: Delete Gateway (remaining devices become orphaned)
+DELETE {{baseUrl}}/api/{{apiVersion}}/gateways/{{createGateway.response.body.data.id}}
+
+### Step 12: Verify Remaining Devices are Now Orphaned
+GET {{baseUrl}}/api/{{apiVersion}}/devices
+
+### Cleanup: Delete Remaining Orphaned Devices
+DELETE {{baseUrl}}/api/{{apiVersion}}/devices/{{createDevice1.response.body.data.id}}
+
+###
+
+DELETE {{baseUrl}}/api/{{apiVersion}}/devices/{{createDevice3.response.body.data.id}}
+
+###
