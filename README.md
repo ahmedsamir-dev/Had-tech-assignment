@@ -4,7 +4,7 @@ A production-ready Node.js REST API for managing gateways and their associated p
 
 ## 🎥 Demo Video
 
-**📹 [Watch the 2-minute functionality demo](./DEMO.webm)**
+**📹 [Watch the 2-minute functionality demo](./demo.mp4)**
 
 Get a quick overview of the complete system in action - from Docker setup to API testing with Swagger UI, demonstrating all key features and business rules.
 
@@ -348,4 +348,3 @@ docs/                     # Additional documentation
 4. **Separation of Concerns**: Clear layers (routes → controllers → services → repositories)
 5. **Configuration Management**: Environment-based config with validation
 6. **Error Handling**: Centralized error middleware with structured responses
-
