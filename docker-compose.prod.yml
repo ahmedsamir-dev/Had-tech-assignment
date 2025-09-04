@@ -1,0 +1,48 @@
+services:
+  api:
+    image: had-technical-assignment-api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+    restart: always
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    ports:
+      - '${PORT:-3000}:${PORT:-3000}'
+    networks:
+      - had-network
+
+  postgresdb:
+    image: postgres:16
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gateway_management}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - had-network
+
+volumes:
+  dbdata:
+    driver: local
+
+networks:
+  had-network:
+    driver: bridge
