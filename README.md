@@ -2,8 +2,15 @@
 
 A production-ready Node.js REST API for managing gateways and their associated peripheral devices. Built with TypeScript, Express.js, PostgreSQL, and Drizzle ORM following modern software architecture principles.
 
+## 🎥 Demo Video
+
+**📹 [Watch the 2-minute functionality demo](./DEMO.webm)**
+
+Get a quick overview of the complete system in action - from Docker setup to API testing with Swagger UI, demonstrating all key features and business rules.
+
 ## 📋 Table of Contents
 
+- [🎥 Demo Video](#🎥-demo-video)
 - [🚀 Quick Start for Reviewers](#🚀-quick-start-for-reviewers)
 - [🏗️ Architecture Overview](#🏗️-architecture-overview)
 - [🗄️ Database Design](#🗄️-database-design)
